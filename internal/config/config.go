@@ -17,8 +17,9 @@ type AutomatedTest struct {
 	ManifestPaths  []string
 	DataSourcePath string
 
-	SetupScriptPath    string
-	TeardownScriptPath string
+	SetupScriptPath           string
+	PreWaitTeardownScriptPath string
+	TeardownScriptPath        string
 
 	DefaultTimeout    int
 	DefaultConditions []string
@@ -31,9 +32,10 @@ type Manifest struct {
 }
 
 type TestCase struct {
-	Timeout            int
-	SetupScriptPath    string
-	TeardownScriptPath string
+	Timeout                   int
+	SetupScriptPath           string
+	PreWaitTeardownScriptPath string
+	TeardownScriptPath        string
 }
 
 type Resource struct {

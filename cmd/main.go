@@ -55,9 +55,10 @@ var (
 		"'provider-aws/examples/s3/bucket.yaml,provider-gcp/examples/storage/bucket.yaml': "+
 		"The comma separated resources are used as test inputs.\n"+
 		"If this option is not set, 'MANIFEST_LIST' env var is used as default.").Envar("MANIFEST_LIST").String()
-	dataSourcePath = e2e.Flag("data-source", "File path of data source that will be used for injection some values.").Envar("UPTEST_DATASOURCE_PATH").Default("").String()
-	setupScript    = e2e.Flag("setup-script", "Script that will be executed before running tests.").Default("").String()
-	teardownScript = e2e.Flag("teardown-script", "Script that will be executed after running tests.").Default("").String()
+	dataSourcePath        = e2e.Flag("data-source", "File path of data source that will be used for injection some values.").Envar("UPTEST_DATASOURCE_PATH").Default("").String()
+	setupScript           = e2e.Flag("setup-script", "Script that will be executed before running tests.").Default("").String()
+	preWaitTeardownScript = e2e.Flag("prewaitteardown-script", "Script that will be executed after all resrouces have been marked as deleted but before we wait for all managed resources.").Default("").String()
+	teardownScript        = e2e.Flag("teardown-script", "Script that will be executed after running tests.").Default("").String()
 
 	defaultTimeout = e2e.Flag("default-timeout", "Default timeout in seconds for the test.\n"+
 		"Timeout could be overridden per resource using \"uptest.upbound.io/timeout\" annotation.").Default("1200").Int()
@@ -92,6 +93,14 @@ func e2eTests() {
 		}
 	}
 
+	preWaitTeardownPath := ""
+	if *preWaitTeardownScript != "" {
+		preWaitTeardownPath, err = filepath.Abs(*preWaitTeardownScript)
+		if err != nil {
+			kingpin.FatalIfError(err, "cannot get absolute path of teardown script")
+		}
+	}
+
 	teardownPath := ""
 	if *teardownScript != "" {
 		teardownPath, err = filepath.Abs(*teardownScript)
@@ -100,13 +109,14 @@ func e2eTests() {
 		}
 	}
 	o := &config.AutomatedTest{
-		ManifestPaths:      examplePaths,
-		DataSourcePath:     *dataSourcePath,
-		SetupScriptPath:    setupPath,
-		TeardownScriptPath: teardownPath,
-		DefaultConditions:  strings.Split(*defaultConditions, ","),
-		DefaultTimeout:     *defaultTimeout,
-		Directory:          *testDir,
+		ManifestPaths:             examplePaths,
+		DataSourcePath:            *dataSourcePath,
+		SetupScriptPath:           setupPath,
+		PreWaitTeardownScriptPath: preWaitTeardownPath,
+		TeardownScriptPath:        teardownPath,
+		DefaultConditions:         strings.Split(*defaultConditions, ","),
+		DefaultTimeout:            *defaultTimeout,
+		Directory:                 *testDir,
 	}
 
 	kingpin.FatalIfError(internal.RunTest(o), "cannot run e2e tests successfully")
