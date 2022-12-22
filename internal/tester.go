@@ -48,9 +48,10 @@ func (t *Tester) ExecuteTests() error {
 
 func (t *Tester) prepareConfig() (*config.TestCase, []config.Resource, error) {
 	tc := &config.TestCase{
-		Timeout:            t.options.DefaultTimeout,
-		SetupScriptPath:    t.options.SetupScriptPath,
-		TeardownScriptPath: t.options.TeardownScriptPath,
+		Timeout:                   t.options.DefaultTimeout,
+		SetupScriptPath:           t.options.SetupScriptPath,
+		PreWaitTeardownScriptPath: t.options.PreWaitTeardownScriptPath,
+		TeardownScriptPath:        t.options.TeardownScriptPath,
 	}
 	examples := make([]config.Resource, 0, len(t.manifests))
 
